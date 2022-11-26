@@ -115,6 +115,10 @@ function addCartItem(productId, numCheck) {
 function getCartList() {
   axios.get(`https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/carts`).
     then(function (response) {
+      if(response.status == 200) {
+        const loading = document.querySelector('img[data-img]')
+        loading.style.display = "none";
+      }
       shoppingCartData = response.data.carts;
       document.querySelector('.js-total').textContent = toThousandths(response.data.finalTotal);
       let str = "";

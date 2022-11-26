@@ -66,7 +66,12 @@ function getOrderList() {
       }
     })
     .then(function (response) {
+      if(response.status == 200) {
+        const loading = document.querySelector('img[data-img]')
+        loading.style.display = "none";
+      }
       orderData = response.data.orders;
+
      
       let str = "";
       orderData.forEach((item) => {
@@ -284,7 +289,14 @@ function siupIn() {
           buttons: "OK",
         });
         window.location.replace('/admin.html');
-      } 
+      } else if (res.message ===  
+        "Email 格式不正確" || "此帳號不存在或帳號密碼錯誤") {
+          swal({
+            title: "帳號輸入錯誤",
+            icon: "error",
+            buttons: "OK",
+          });
+      }
       signInAccount.value = "";
       signInPassword.value = "";
     })
@@ -297,4 +309,5 @@ function siupIn() {
       });
     });
 }
+
 
