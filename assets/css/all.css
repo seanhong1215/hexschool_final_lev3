@@ -71,6 +71,7 @@ img {
 body {
   font-family: 'Noto Sans', sans-serif;
   font-weight: bold;
+  scroll-behavior: smooth;
 }
 
 .wrap {
@@ -172,6 +173,9 @@ body {
   .topBar-menu li:last-child a {
     padding: 15px;
   }
+  .topBar {
+    margin-bottom: 0;
+  }
 }
 
 .menuToggle {
@@ -257,6 +261,13 @@ body {
 @media (max-width: 767px) {
   .furniture-compare {
     padding: 50px 15px 60px;
+  }
+  .bedAdvantage {
+    flex-direction: column;
+    align-items: center;
+  }
+  .bedAdvantage > li {
+    margin-bottom: 30px;
   }
 }
 
@@ -411,6 +422,19 @@ body {
 @media (max-width: 767px) {
   .transport li {
     margin-bottom: 20px;
+  }
+  .gallery-top, .gallery-bottom {
+    align-items: center;
+    flex-direction: column;
+    margin-left: 0;
+  }
+  .recommendation-card {
+    margin-left: 0;
+    margin-bottom: 20px;
+  }
+  .recommendation-wall {
+    overflow-y: scroll;
+    max-height: 350px;
   }
 }
 
@@ -570,6 +594,13 @@ body {
 @media (max-width: 900px) {
   .productCard {
     width: 48%;
+  }
+}
+@media (max-width: 767px) {
+  .productSelect {
+    display: block;
+    margin: auto;
+    margin-bottom: 30px;
   }
 }
 
@@ -967,3 +998,26 @@ body {
   text-decoration: none;
 }
 
+@media (max-width: 767px) {
+  .productWrap {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .productWrap .card-media {
+    margin: auto;
+  }
+  .productWrap .card .tag {
+    right: 210px;
+  }
+  .products-list {
+    padding-right: 0;
+    width: 100%;
+  }
+  .productWrap .card-body .card-price {
+    text-align: center;
+  }
+  .productWrap .card-body .card-title{
+    text-align: center;
+  }
+}

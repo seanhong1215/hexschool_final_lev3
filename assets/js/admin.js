@@ -1,9 +1,3 @@
-
-
-
-
-
-
 function init(){
   getOrderList();
 }
@@ -14,7 +8,6 @@ const orderList = document.querySelector('.js-orderList');
 
 // c3.js
 function renderC3() {
-  // console.log(orderData)
   // 轉物件格式
   let total = {};
   orderData.forEach((item) =>{
@@ -27,7 +20,6 @@ function renderC3() {
       }
     })
   })
-  // console.log(total)
 
   // 做資料關聯
   let categoryAry = Object.keys(total)
@@ -51,9 +43,6 @@ function renderC3() {
     })
     newData.splice(3, newData.length - 1);
     newData.push(['其他', otherTotal]);
-    newData.sort( (a, b) =>{
-      return b[1] - a[1];
-    })
   }
 
   c3.generate({
@@ -77,7 +66,6 @@ function getOrderList() {
       }
     })
     .then(function (response) {
-      // console.log(response.data);
       orderData = response.data.orders;
      
       let str = "";
@@ -128,20 +116,14 @@ function getOrderList() {
 }
 
 orderList.addEventListener('click', function(e){
-  // console.log(e.target)
   e.preventDefault();
   const targetClass = e.target.getAttribute("class");
-  // console.log(targetClass)
   let id = e.target.getAttribute("data-id");
   if(targetClass == "js-orderStatus"){
     let status = e.target.getAttribute("data-status");
-    // alert("你點擊訂單狀態")
-    // console.log(id, status)
     editOrderList(id, status)
     return;
   }else if(targetClass === "delSingleOrder-Btn js-orderDelete"){
-    // alert("你點擊刪除按鈕")
-    // console.log(id)
     deleteOrderItem(id)
     return;
   }
@@ -215,7 +197,6 @@ function deleteAllOrder() {
       }
     })
     .then(function (response) {
-      // console.log(response.data);
       swal({
         title: "刪除全部訂單成功",
         icon: "success",
@@ -226,7 +207,7 @@ function deleteAllOrder() {
 }
 
 
-
+// 登入註冊
 const signUpAccount = document.querySelector(".signUpAccount");
 const signUpPassword = document.querySelector(".signUpPassword");
 const signInAccount = document.querySelector(".signInAccount");
@@ -247,7 +228,11 @@ signup.addEventListener('click', function(e){
 
 function signUp(){
   if (signUpAccount.value == "" || signUpPassword.value==""){
-    alert("請填寫正確資訊");
+    swal({
+      title: "請填寫正確資訊",
+      icon: "warning",
+      buttons: "OK",
+    });
     return;
   }
   let obj = {};
@@ -279,7 +264,11 @@ function signUp(){
 }
 function siupIn() {
   if (signInAccount.value === "" || signInPassword.value === "") {
-    alert("請填寫正確資訊");
+    swal({
+      title: "請填寫正確資訊",
+      icon: "warning",
+      buttons: "OK",
+    });
     return;
   }
   let obj = {};

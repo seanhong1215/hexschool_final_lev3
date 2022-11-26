@@ -77,11 +77,9 @@ productSelect.addEventListener('change', function(e){
 })
 
 // 加入購物車
-// 監聽都寫在外層
 productList.addEventListener('click', function(e){
   e.preventDefault();
-  let addCartClass = e.target.getAttribute('class')
-  if(addCartClass !== "card-link"){
+  if(e.target.hasAttribute('data-id') !== true){
     return;
   }
   let productId = e.target.getAttribute('data-id')
@@ -95,7 +93,6 @@ productList.addEventListener('click', function(e){
   // console.log(numCheck)
 })
 
-// 加入購物車
 function addCartItem(productId, numCheck) {
   axios.post(`https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/carts`, {
     data: {
@@ -114,13 +111,11 @@ function addCartItem(productId, numCheck) {
 
 }
 
-
 // 取得購物車列表
 function getCartList() {
   axios.get(`https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/carts`).
     then(function (response) {
       shoppingCartData = response.data.carts;
-      // console.log(response.data);
       document.querySelector('.js-total').textContent = toThousandths(response.data.finalTotal);
       let str = "";
       shoppingCartData.forEach((item)=>{
@@ -149,17 +144,10 @@ function getCartList() {
 
 const cartList = document.querySelector('.shoppingCart-tableList');
 cartList.addEventListener('click', function(e){
-  // console.log(e.target)
   e.preventDefault();
   const cardId = e.target.getAttribute('data-id')
   const cardProduct = e.target.getAttribute('data-product')
-  // console.log(deleteId)
   if(cardId == null){
-    swal({
-      title: "你點到其他東西了~",
-      icon: "info",
-      buttons: "OK",
-    });
     return;
   }
   deleteCartItem(cardId, cardProduct)
@@ -175,7 +163,6 @@ function deleteCartItem(cartId, cardProduct) {
         buttons: "OK",
       });
       getCartList();
-      // console.log(cartId);
     })
 }
 
@@ -205,121 +192,135 @@ function deleteAllCartList() {
     })
 }
 
-const orderInfoBtn = document.querySelector('.orderInfo-btn')
-orderInfoBtn.addEventListener('click', function(e){
+// 送出購買訂單
+const orderInfoBtn = document.querySelector(".orderInfo-btn");
+const form = document.querySelector(".orderInfo-form");
+const inputs = document.querySelectorAll(
+  "input[type=text],input[type=tel],input[type=email]"
+);
+
+// 訂單事件監聽
+orderInfoBtn.addEventListener("click", function (e) {
   e.preventDefault();
-  if(shoppingCartData.length === 0){
-    swal({
-      title: "請加入購物車",
-      icon: "warning",
-      buttons: "OK",
-    });
-    return;
-  }
-  const customerName = document.querySelector('#customerName').value
-  const customerPhone = document.querySelector('#customerPhone').value
-  const customerEmail = document.querySelector('#customerEmail').value
-  const customerAddress = document.querySelector('#customerAddress').value
-  const tradeWay = document.querySelector('#tradeWay').value
+  // 表單驗證規則
+  const constraints = {
+    name: {
+      presence: {
+        message: "姓名 必填欄位"
+      }
+    },
+    phone: {
+      presence: {
+        message: "電話 需要超過8碼"
+      },
+      format: {
+        pattern: /^09\d{2}-?\d{3}-?\d{3}$/,
+        message: "開頭須為09"
+      },
+      length: {
+        is: 10,
+        message: "長度須為10碼"
+      }
+    },
+    email: {
+      presence: {
+        message: "信箱 必填欄位"
+      },
+      format: {
+        pattern: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
+        message: "格式輸入錯誤，需有@ 、.等符號"
+      }
+    },
+    address: {
+      presence: {
+        message: "地址 必填欄位"
+      }
+    }
+  };
+  let errors = validate(form, constraints);
 
-if(customerName == "" || customerPhone == "" || customerEmail == "" || customerAddress == "" || tradeWay == ""){
-
-  swal({
-    title: "請填寫訂單資訊",
-    icon: "warning",
-    buttons: "OK",
-  });
-  return;
-}
-
+  //取得表單input Value
+  const customerName = document.querySelector("#customerName").value;
+  const customerPhone = document.querySelector("#customerPhone").value;
+  const customerEmail = document.querySelector("#customerEmail").value;
+  const customerAddress = document.querySelector("#customerAddress").value;
+  const tradeWay = document.querySelector("#tradeWay").value;
+  
+  //帶入訂單輸入的資料
   const data = {
     name: customerName,
     phone: customerPhone,
     email: customerEmail,
     address: customerAddress,
     trade: tradeWay
+  };
+
+  // 綁定表單change事件
+  inputs.forEach((item) => {
+    item.addEventListener("change", function () {
+      item.nextElementSibling.textContent = "";
+      let errors = validate(form, constraints) || "";
+      checkForm(errors);
+    });
+  });
+  if (shoppingCartData.length === 0) {
+    swal({
+      title: "請加入購物車",
+      icon: "warning",
+      buttons: "OK"
+    });
+    return;
+  } else {
+    if (errors) {
+      checkForm(errors);
+      swal({
+        title: "請填寫完整訂單資訊",
+        icon: "warning",
+        buttons: "OK"
+      });
+    } else {
+      createOrder(data);
+    }
   }
-  createOrder(data)
-})
+});
 
-// 驗證
-const form = document.querySelector('.orderInfo-form')
-const inputs = document.querySelectorAll('input[type=text],input[type=tel],input[type=email]')
-const constraints = {
-  name: {
-    presence: {
-      message: "姓名 必填欄位"
-    }
-  },
-  phone: {
-    presence: {
-      message: "電話 需要超過8碼"
-    }
-  },
-  email: {
-    presence: {
-      message: "信箱 必填欄位"
-    }
-  },
-  address: {
-    presence: {
-      message: "地址 必填欄位"
-    }
-  },
-
-};
-// console.log(inputs)
-inputs.forEach((item)=>{
-  // console.log(item)
-  item.addEventListener('change', function(){
-    item.nextElementSibling.textContent = "";
-    let errors = validate(form, constraints) || "";
-    // console.log(errors)
-    if(errors){
-      Object.keys(errors).forEach((keys) => {
-        document.querySelector(`.${keys}`).textContent = errors[keys];
-        return;
-      });    
-    }
-  })
-})
-
+// 表單的錯誤訊息
+function checkForm(errors) {
+  if (errors) {
+    Object.keys(errors).forEach((keys) => {
+      document.querySelector(`.${keys}`).textContent = errors[keys];
+    });
+  }
+}
 
 // 送出購買訂單
 function createOrder(data) {
-  axios.post(`https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/orders`,
-    {
-      "data": {
-        "user": {
-          "name": data.name,
-          "tel": data.phone,
-          "email": data.email,
-          "address": data.address,
-          "payment": data.trade
+  axios
+    .post(
+      `https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/orders`,
+      {
+        data: {
+          user: {
+            name: data.name,
+            tel: data.phone,
+            email: data.email,
+            address: data.address,
+            payment: data.trade
+          }
         }
       }
-    }
-  ).
-    then(function (response) {
-      // console.log(response.data);
+    )
+    .then(function (response) {
       swal({
         title: "訂單建立成功",
         icon: "success",
-        buttons: "OK",
+        buttons: "OK"
       });
       form.reset();
       getCartList();
-    })
-    .catch(function(error){
-      // console.log(error.response.data);
-      swal({
-        title: "訂單建立失敗",
-        icon: "error",
-        buttons: "OK",
-        dangerMode: true,
-      });
-    })
+    });
 }
+
 
 // utils js
 function toThousandths(x) {
@@ -328,7 +329,4 @@ function toThousandths(x) {
   return parts.join(".");
 }
 
-// Eamil 驗證
 
-
-// 電話 驗證
